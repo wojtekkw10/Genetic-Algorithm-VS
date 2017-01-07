@@ -50,9 +50,41 @@ public:
 	~GeneticAlgorithm();
 };
 
-class Neuron {
-	double weight;
+class PerceptronNeuron {
+public:
+	std::vector <double> Weights;
+	int numberOfInputs;
+	double Threashold;
+	double Activation;
+	double Output;
 
-	Neuron();
-	~Neuron();
+	PerceptronNeuron(int numberOfInputs, double threashold = 1);
+	~PerceptronNeuron();
+};
+
+class NeuronLayer
+{
+public:
+	std::vector <PerceptronNeuron> Layer;
+
+	NeuronLayer(int numberOfNeurons);
+	~NeuronLayer();
+};
+
+class NeuralNetwork
+{
+public:
+	std::vector <NeuronLayer> NN;
+	std::vector <double> Inputs; //Place for inputs
+	std::vector <double> Outputs;
+
+	void SetInputs(std::vector <double> Inputs); //Get inputs for evaluation
+
+	void SetWeights(std::vector <double> Weights); //from Genetic algorithm as an array of weight
+	std::vector <double> GetWeights(); //for GA
+
+	void Evaluate(); //Calculate the outputs from Inputs and weights
+
+	NeuralNetwork(int numberOfLayers, int numberOfNeurons);
+	~NeuralNetwork();
 };

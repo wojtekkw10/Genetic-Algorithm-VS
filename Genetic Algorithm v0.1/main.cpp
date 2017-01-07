@@ -28,7 +28,7 @@ int main()
 		alg.SelectionMethod = Rank;
 
 		bool stop = false;
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			alg.Evolve(5);
 			if (alg.Population[0].fitness == 2000) break;
@@ -46,8 +46,13 @@ int main()
 		std::cout << sum << " ";
 		std::cout << std::endl << std::endl;
 	}
+
+	NeuralNetwork NN(6,20);
+	std::cout << "fefefe";
+	NN.Evaluate();
 	/*
 	alg.evolve();//crossover
+	
 	neuralnetwork neuralnetwork(alg.pop[n].chromosome//weights);
 	alg.pop[n].chromosome = neuralnetwork.backpropagate(); //dodatkowo polepszamy
 

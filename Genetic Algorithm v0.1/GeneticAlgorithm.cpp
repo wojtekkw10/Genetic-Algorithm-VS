@@ -238,11 +238,141 @@ Individual::~Individual()
 {
 }
 
-Neuron::Neuron()
+PerceptronNeuron::PerceptronNeuron(int numberOfInputs, double threashold)
 {
-	weight = ((double)rand() / (RAND_MAX));//0 < r < 1
-	//r = ((double) rand() / (RAND_MAX + 1)) -1 < r < 0?
+	Activation = 0;
+	Output = 0;
+	this->Threashold = threashold;
+	for (int i = 0; i < numberOfInputs; i++)
+	{
+		Weights.push_back( ((double)rand() / (RAND_MAX)));//0 < r < 1
+		//r = ((double) rand() / (RAND_MAX + 1)) -1 < r < 0?
+	}
+
 }
-Neuron::~Neuron()
+PerceptronNeuron::~PerceptronNeuron()
 {
+}
+
+NeuronLayer::NeuronLayer( int numberOfNeurons)
+{
+	for (int i = 0; i < numberOfNeurons; i++)
+	{
+		PerceptronNeuron temp(numberOfNeurons);
+		Layer.push_back(temp);
+	}
+}
+NeuronLayer::~NeuronLayer()
+{
+
+}
+
+void NeuralNetwork::SetInputs(std::vector<double> Inputs)
+{
+	this->Inputs.clear();
+	this->Inputs.shrink_to_fit();
+	for (int i = 0; i < Inputs.size(); i++)
+	{
+		this->Inputs.push_back(Inputs[i]);
+	}
+}
+
+void NeuralNetwork::SetWeights(std::vector<double> Weights)
+{
+	int i = 0;
+	for (int i = 0; i < NN.size(); i++)
+	{
+		for (int j = 0; j < NN[0].Layer.size(); j++)
+		{
+			for (int k = 0; k < NN[0].Layer[0].Weights.size(); k++)
+			{
+				NN[i].Layer[j].Weights.push_back(Weights[i]);
+				i++;
+			}
+		}
+	}
+}
+
+std::vector<double> NeuralNetwork::GetWeights()
+{
+	std::vector <double> Weights;
+	for (int i = 0; i < NN.size(); i++)
+	{
+		for (int j = 0; j < NN[0].Layer.size(); j++)
+		{
+			for (int k = 0; k < NN[0].Layer[0].Weights.size(); k++)
+			{
+				Weights.push_back(NN[i].Layer[j].Weights[k]);
+			}
+		}
+	}
+	return Weights;
+}
+
+void NeuralNetwork::Evaluate()
+{
+	//i - number of weight in neuron
+	//j = number of neuron in neuron layer
+	//k - number of layer
+
+	//Calculate activation values in first layer
+	for (int j = 0; j < NN[0].Layer.size(); j++)
+	{
+		double Activation = 0; //sum of weights * inputs
+		for (int i = 0; i < NN[0].Layer[j].numberOfInputs; i++)
+		{
+			Activation += Inputs[i] * NN[0].Layer[j].Weights[i]; // j - number of neuron in a layer
+		}
+		NN[0].Layer[j].Activation = Activation;
+	}
+	//Calculate Outputs (threashold, sigma function later)
+	for (int j = 0; j < NN[0].Layer.size(); j++)
+	{
+		if (NN[0].Layer[j].Activation > NN[0].Layer[j].Threashold) NN[0].Layer[j].Output = 1;
+		else NN[0].Layer[j].Output = 0;
+	}
+	//First Layer Done
+
+	for (int k = 1; k < NN.size(); k++)
+	{
+		for (int j = 0; j < NN[k].Layer.size(); j++)
+		{
+			double Activation = 0; //sum of weights * inputs
+			for (int i = 0; i < NN[k].Layer[j].numberOfInputs; i++)
+			{
+				Activation += NN[k-1].Layer[i].Output * NN[k].Layer[j].Weights[i];
+			}
+			NN[k].Layer[j].Activation = Activation;
+		}
+		for (int j = 0; j < NN[k].Layer.size(); j++)
+		{
+			if (NN[k].Layer[j].Activation > NN[k].Layer[j].Threashold) NN[k].Layer[j].Output = 1;
+			else NN[k].Layer[j].Output = 0;
+		}
+
+	}
+	int thelastLayer = NN.size();
+	for (int j = 0; j < NN[thelastLayer].Layer.size(); j++)
+	{
+		Outputs.push_back(NN[thelastLayer].Layer[j].Output);
+	}
+
+
+
+
+
+
+}
+
+NeuralNetwork::NeuralNetwork(int numberOfLayers, int numberOfNeurons)
+{
+	for (int i = 0; i < numberOfLayers; i++)
+	{
+		NeuronLayer temp(numberOfNeurons);
+		NN.push_back(temp);
+	}
+}
+NeuralNetwork::~NeuralNetwork()
+{
+
 }
