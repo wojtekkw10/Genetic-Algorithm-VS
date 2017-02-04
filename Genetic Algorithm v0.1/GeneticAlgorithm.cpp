@@ -380,7 +380,7 @@ void NeuralNetwork::Evaluate()
 
 
 
-
+	 
 }
 
 NeuralNetwork::NeuralNetwork(int numberOfLayers, int numberOfNeurons)
