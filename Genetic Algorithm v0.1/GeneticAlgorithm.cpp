@@ -209,7 +209,7 @@ void GeneticAlgorithm::Mutate()
 	}
 }
 
-GeneticAlgorithm::GeneticAlgorithm(int sizeOfPopulation, int randomBottom, int randomUp)
+GeneticAlgorithm::GeneticAlgorithm(int sizeOfPopulation, int randomBottom, int randomUp, int sizeofChromosome)
 {
 	Population.resize(sizeOfPopulation);
 	crossoverRate = 0.7;
@@ -220,7 +220,7 @@ GeneticAlgorithm::GeneticAlgorithm(int sizeOfPopulation, int randomBottom, int r
 
 	for (unsigned int i = 0; i < Population.size(); i++)
 	{
-		for (int j = 0; j < 5; j++)
+		for (int j = 0; j < sizeofChromosome; j++)
 		{
 			Population[i].Chromosome.push_back((rand() % (randomUp-randomBottom)) + randomBottom);
 		}
@@ -243,6 +243,7 @@ PerceptronNeuron::PerceptronNeuron(int numberOfInputs, double threashold)
 	Activation = 0;
 	Output = 0;
 	this->Threashold = threashold;
+	this->numberOfInputs = numberOfInputs;
 	for (int i = 0; i < numberOfInputs; i++)
 	{
 		Weights.push_back( ((double)rand() / (RAND_MAX)));//0 < r < 1
@@ -279,15 +280,15 @@ void NeuralNetwork::SetInputs(std::vector<double> Inputs)
 
 void NeuralNetwork::SetWeights(std::vector<double> Weights)
 {
-	int i = 0;
+	int l = 0;
 	for (int i = 0; i < NN.size(); i++)
 	{
 		for (int j = 0; j < NN[0].Layer.size(); j++)
 		{
 			for (int k = 0; k < NN[0].Layer[0].Weights.size(); k++)
 			{
-				NN[i].Layer[j].Weights.push_back(Weights[i]);
-				i++;
+				NN[i].Layer[j].Weights[k] = Weights[l];
+				l++;
 			}
 		}
 	}
@@ -319,7 +320,7 @@ void NeuralNetwork::Evaluate()
 	for (int j = 0; j < NN[0].Layer.size(); j++)
 	{
 		double Activation = 0; //sum of weights * inputs
-		for (int i = 0; i < NN[0].Layer[j].numberOfInputs; i++)
+		for (int i = 0; i < sizeofInput; i++)
 		{
 			Activation += Inputs[i] * NN[0].Layer[j].Weights[i]; // j - number of neuron in a layer
 		}
@@ -333,7 +334,7 @@ void NeuralNetwork::Evaluate()
 	}
 	//First Layer Done
 
-	for (int k = 1; k < NN.size(); k++)
+	for (int k = 1; k < NN.size()-1; k++)
 	{
 		for (int j = 0; j < NN[k].Layer.size(); j++)
 		{
@@ -349,10 +350,28 @@ void NeuralNetwork::Evaluate()
 			if (NN[k].Layer[j].Activation > NN[k].Layer[j].Threashold) NN[k].Layer[j].Output = 1;
 			else NN[k].Layer[j].Output = 0;
 		}
-
 	}
-	int thelastLayer = NN.size();
-	for (int j = 0; j < NN[thelastLayer].Layer.size(); j++)
+
+	//Evaluating the output layer
+
+	int thelastLayer = NN.size()-1; //NN.size() is an output layer
+	for (int j = 0; j < sizeofOutput; j++)
+		{
+			double Activation = 0; //sum of weights * inputs
+			for (int i = 0; i < NN[thelastLayer].Layer[j].numberOfInputs; i++)
+			{
+				Activation += NN[thelastLayer - 1].Layer[i].Output * NN[thelastLayer].Layer[j].Weights[i];
+			}
+			NN[thelastLayer].Layer[j].Activation = Activation;
+		}
+	for (int j = 0; j < sizeofOutput; j++)
+		{
+			if (NN[thelastLayer].Layer[j].Activation > NN[thelastLayer].Layer[j].Threashold) NN[thelastLayer].Layer[j].Output = 1;
+			else NN[thelastLayer].Layer[j].Output = 0;
+		}
+
+
+	for (int j = 0; j < sizeofOutput; j++)
 	{
 		Outputs.push_back(NN[thelastLayer].Layer[j].Output);
 	}
@@ -366,7 +385,7 @@ void NeuralNetwork::Evaluate()
 
 NeuralNetwork::NeuralNetwork(int numberOfLayers, int numberOfNeurons)
 {
-	for (int i = 0; i < numberOfLayers; i++)
+	for (int i = 0; i < numberOfLayers+1; i++) //+1 for output
 	{
 		NeuronLayer temp(numberOfNeurons);
 		NN.push_back(temp);

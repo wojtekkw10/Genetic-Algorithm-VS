@@ -46,7 +46,7 @@ public:
 	SelectionMethod SelectionMethod;
 
 	std::vector <Individual> Crossover();
-	GeneticAlgorithm(int sizeOfPopulation, int randomBottom, int randomUp);
+	GeneticAlgorithm(int sizeOfPopulation, int randomBottom, int randomUp, int sizeofChromosome);
 	~GeneticAlgorithm();
 };
 
@@ -58,7 +58,7 @@ public:
 	double Activation;
 	double Output;
 
-	PerceptronNeuron(int numberOfInputs, double threashold = 1);
+	PerceptronNeuron(int numberOfInputs, double threashold = 0.5);
 	~PerceptronNeuron();
 };
 
@@ -77,6 +77,9 @@ public:
 	std::vector <NeuronLayer> NN;
 	std::vector <double> Inputs; //Place for inputs
 	std::vector <double> Outputs;
+
+	int sizeofOutput;
+	int sizeofInput;
 
 	void SetInputs(std::vector <double> Inputs); //Get inputs for evaluation
 

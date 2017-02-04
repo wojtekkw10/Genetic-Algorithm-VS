@@ -2,6 +2,30 @@
 #include "GeneticAlgorithm.h"
 #include <time.h>
 
+NeuralNetwork NN(1,4);
+
+double CalculateFitnessNN(std::vector <double> Chromosome)
+{
+	/* Goal - for numbers less than 0 - 0; otherwise 1*/
+	std::vector <double> Input;
+	Input.push_back(0.5);
+
+	NN.sizeofOutput = 1;
+	NN.sizeofInput = 1;
+	NN.SetWeights(Chromosome);
+	NN.SetInputs(Input);
+	NN.Evaluate();
+	std::vector <double> Output = NN.Outputs;
+
+	double error = 0;
+
+	error += pow(Output[0] - 1, 2);
+
+	if (0 == error) return 10;
+	else return -abs(error) + 10;
+
+}
+
 
 double CalculateFitness(std::vector <double> Chromosome)
 {
@@ -20,17 +44,17 @@ int main()
 
 	for (int k = 0; k < 1; k++)
 	{
-		GeneticAlgorithm alg(100, 0, 500);
+		GeneticAlgorithm alg(100, 0, 2, 100);
 		alg.crossoverRate = 0.8;
 		alg.mutationRate = 0.05;
-		alg.FitnessFunc = CalculateFitness;
+		alg.FitnessFunc = CalculateFitnessNN;
 		alg.displayStats = true;
 		alg.SelectionMethod = Rank;
 
 		bool stop = false;
 		for (int i = 0; i < 5; i++)
 		{
-			alg.Evolve(5);
+			alg.Evolve(1);
 			if (alg.Population[0].fitness == 2000) break;
 		}
 
@@ -46,10 +70,23 @@ int main()
 		std::cout << sum << " ";
 		std::cout << std::endl << std::endl;
 	}
+	std::cout << NN.Outputs[0];
 
-	NeuralNetwork NN(6,20);
-	std::cout << "fefefe";
-	NN.Evaluate();
+
+	std::cout << std::endl << std::endl << std::endl << std::endl;
+
+	for (int i = 0; i < 100; i++)
+	{
+		std::vector <double> Input;
+		Input.push_back(0.51);
+
+		NeuralNetwork NNN(5, 20);
+		NNN.sizeofOutput = 1;
+		NNN.sizeofInput = 1;
+		NNN.SetInputs(Input);
+		NNN.Evaluate();
+		std::cout << NNN.Outputs[0] << std::endl;
+	}
 	/*
 	alg.evolve();//crossover
 	
